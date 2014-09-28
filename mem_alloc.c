@@ -36,8 +36,8 @@ free_block_t first_free;
 Initialize the list of free blocks with a single free block corresponding to the full array.
 */
 void memory_init(void) {
-	first_free = (void *)memory;
-  printf("memory: %d\n", (int)first_free);
+	first_free = (free_block_t)((uintptr_t)memory);
+  printf("memory: %lu\n", (uintptr_t)first_free);
 	first_free->size = MEMORY_SIZE - sizeof(free_block_s);
 	first_free->next = NULL;
 }
@@ -58,7 +58,8 @@ char *memory_alloc(int size) {
 		if (current->size > real_size) {                    
         // It was the first free block
         if (current == first_free) {
-          first_free = first_free + real_size; // We moove the pointer!
+          // TODO we're assuming the block is initialized only with the required size
+          first_free = first_free + real_size;
           first_free->size = first_free->size - real_size;  
         }
         // Somewhere else, link the previous to the next one 
@@ -69,9 +70,11 @@ char *memory_alloc(int size) {
         // Create a busy block
         busy_block_t new_busy_block = (busy_block_t)current;
         new_busy_block->size = (current->size + sizeof(free_block_s)) - sizeof(busy_block_s);
+        // TODO delete this line once the blocks use only the required size
+        first_free = NULL;
 			             
-       printf("current: %d\n", (int)current); // NOTE this looks weird, why? (maybe virtual address)
-      return (char *)((int)current + sizeof(busy_block_s));	    
+       printf("current: %lu\n", (uintptr_t)current); // NOTE this looks weird, why? (maybe virtual address)
+      return (char *)((uintptr_t)current + sizeof(busy_block_s));	    
 		}
     previous = current;
 	}
@@ -84,10 +87,47 @@ This method frees the zone adressed by zone. whose address is given receives an 
 It updates the list of the free blocks and merge contiguous blocks.
 */
 void memory_free(char *p) {
-  // print_free_info(p); 
+  // print_free_info(p);   printf("%d\n", (int)p);
 
+  // Find the busy block headear
+  busy_block_t occupied_block = (busy_block_t)((uintptr_t)p - sizeof(busy_block_s));
+  // Make it a free block
+  free_block_t free_block = (free_block_t)((uintptr_t)occupied_block);
+  free_block->size = (occupied_block->size + sizeof(busy_block_s)) - sizeof(free_block_s);
 
-  /* ... */
+  // If we ran out of free blocks
+  if (first_free == NULL) {
+    first_free = free_block;
+    first_free->next = NULL;
+  } 
+  // Update the list of free blocks
+  else {
+    // First free is located after free_block
+    if ((uintptr_t)first_free > (uintptr_t)free_block) {
+      free_block->next = first_free;
+      first_free = free_block;
+    } 
+    // There's at least one empty free block before free_block
+    else {
+      free_block_t current;           
+      for (current = first_free; current != NULL; current = current->next) {      
+        // We need to find the closest free block before free_block
+        if (current->next == NULL || (uintptr_t)current->next > (uintptr_t)free_block) {
+          // just link free_block
+          free_block->next = current->next;
+          current->next = free_block;
+        }
+      } 
+    }
+  }
+
+  // TODO Merge contiguous blocks
+  while (1) {
+    break;
+  }
+
+  printf("occupied_block: %lu\n", (uintptr_t)occupied_block);  
+  printf("free_block->size: %d\n", free_block->size);
 }
 
 
@@ -166,11 +206,13 @@ int main(int argc, char **argv){
   // printf("malloc: %d\n", (int)memory_alloc(1));
 
   int i ; 
-  for( i = 0; i < 1; i++){
+  for (i = 0; i < 1; i++) {
     char *b = memory_alloc(16);//memory_alloc(rand()%8);
-    printf("b: %d\n", (int)b);
+    printf("b: %lu\n", (uintptr_t)b);
+    printf("first_free: %lu\n", (uintptr_t)first_free);
     memory_free(b); 
-    print_free_blocks();
+    printf("first_free after free: %lu\n", (uintptr_t)first_free);
+    // print_free_blocks();
   }
 
   /*
@@ -187,3 +229,4 @@ int main(int argc, char **argv){
   return EXIT_SUCCESS;
 }
 #endif 
+  
