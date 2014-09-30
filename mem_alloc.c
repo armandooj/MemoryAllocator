@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include <string.h>
+#include <stdint.h>
 
 /* memory */
 char memory[MEMORY_SIZE]; 
@@ -58,8 +59,8 @@ char *memory_alloc(int size) {
 		if (current->size > real_size) {                    
         // It was the first free block
         if (current == first_free) {
-          // Check if there's enough space to move first_free
-          if (((uintptr_t)first_free + real_size) >= ((uintptr_t)memory + MEMORY_SIZE)) {
+          // Check if there's enough space to move first_free                              /// TODO add some memory alignment -- how many bytes?? probably 8
+          if (((uintptr_t)first_free + real_size) >= ((uintptr_t)memory + MEMORY_SIZE)) {     // check out buddy allocation
             first_free = NULL;
           } else {
             // Enough space, just move first_free 
@@ -139,6 +140,9 @@ void memory_free(char *p) {
   while (1) {
     break;
   }
+
+  // Note. Another apporoach would be to not merge at all here but wait until there's not enough memory for an allocation and then try
+  // to merge free blocks
 
   printf("occupied_block: %lu\n", (uintptr_t)occupied_block);  
   printf("free_block->size (ex occupied_block): %d\n", free_block->size);
