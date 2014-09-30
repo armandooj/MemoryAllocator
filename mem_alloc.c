@@ -4,6 +4,9 @@
 #include <string.h>
 #include <stdint.h>
 
+#define ALIGNMENT_CONSTANT 4
+#define MINIMUM_SIZE 12
+
 /* memory */
 char memory[MEMORY_SIZE]; 
 
@@ -38,7 +41,7 @@ Initialize the list of free blocks with a single free block corresponding to the
 */
 void memory_init(void) {
 	first_free = (free_block_t)((uintptr_t)memory);
-  printf("memory: %lu\n", (uintptr_t)first_free);
+  // printf("memory: %lu\n", (uintptr_t)first_free);
 	first_free->size = MEMORY_SIZE - sizeof(free_block_s);
 	first_free->next = NULL;
 }
@@ -47,11 +50,28 @@ void memory_init(void) {
 This method allocates a block of size size. It returns a pointer to the allocated memory or NULL if the allocation failed.
 */
 char *memory_alloc(int size) {
-  // the size needed for both memory and header
-	int real_size = size + sizeof(busy_block_s);  
-	free_block_t current, previous;  
+  free_block_t current, previous;
 
-  printf("busy_block size: %lu, real_size: %d\n", sizeof(busy_block_s), real_size);
+  if (size < MINIMUM_SIZE) {
+    size = MINIMUM_SIZE;
+  }
+
+  /*
+  // Memory alignment
+  int reminder = size % ALIGNMENT_CONSTANT;
+  if (reminder != 0) {    
+    size = size + reminder;
+  } 
+  */
+
+  // the size needed for both memory and header
+	int real_size = size + sizeof(busy_block_s); 
+  /*
+  // We need to make sure this block can hold a free block header in the future
+  real_size = (real_size < sizeof(free_block_s)) ? sizeof(free_block_s) : real_size;	
+  */
+
+  // printf("busy_block size: %lu, real_size: %d\n", sizeof(busy_block_s), real_size);
 
   for (current = first_free; current != NULL; current = current->next) {
     // We found an empty block with enough space
@@ -59,14 +79,14 @@ char *memory_alloc(int size) {
 		if (current->size > real_size) {                    
         // It was the first free block
         if (current == first_free) {
-          // Check if there's enough space to move first_free                              /// TODO add some memory alignment -- how many bytes?? probably 8
+          // Check if there's enough space to move first_free                              
           if (((uintptr_t)first_free + real_size) >= ((uintptr_t)memory + MEMORY_SIZE)) {     // check out buddy allocation
             first_free = NULL;
           } else {
             // Enough space, just move first_free 
             int old_first_free_size = first_free->size;
             first_free = (free_block_t)((uintptr_t)first_free + real_size);
-            first_free->size = (old_first_free_size + sizeof(free_block_s)) - real_size; 
+            first_free->size = old_first_free_size - real_size; 
           }
         }
         // Somewhere else, link the prevoious to the next one 
@@ -76,16 +96,13 @@ char *memory_alloc(int size) {
 
         // Create a new busy block
         busy_block_t new_busy_block = (busy_block_t)current;
-        // We need to make sure this block can hold a free block header in the future
-        if (real_size < sizeof(free_block_s)) {
-          // TODO think about this. Why would a free block sizeof(free_block_s) be usefull? -- maybe it it's merged..
-          new_busy_block->size = sizeof(free_block_s);
-        } else {
-          new_busy_block->size = size;
-        }
+        new_busy_block->size = size;
+
+        char *allocated_memory = (char *)((uintptr_t)current + sizeof(busy_block_s));
+        print_alloc_info(allocated_memory, size);
 			             
-       printf("current: %lu\n", (uintptr_t)current); // NOTE this looks weird, why? (maybe virtual address)
-      return (char *)((uintptr_t)current + sizeof(busy_block_s));	    
+        //printf("current: %lu\n", (uintptr_t)current); // NOTE this looks weird, why? (maybe virtual address)
+      return allocated_memory;	    
 		}
     previous = current;
 	}
@@ -221,6 +238,7 @@ int main(int argc, char **argv){
 
   /* The main can be changed, it is *not* involved in tests */
   memory_init();
+  /*
   char *b = memory_alloc(30);
   printf("malloc returned: %lu\n", (uintptr_t)b);
   printf("first_free: %lu\n", (uintptr_t)first_free);
@@ -244,6 +262,7 @@ int main(int argc, char **argv){
     printf("first_free after free: %lu\n", (uintptr_t)first_free);
     // print_free_blocks();
   } 
+  */
 
   /*
   char * a = memory_alloc(15);
