@@ -50,7 +50,7 @@ char *memory_alloc(int size) {
 	int real_size = size + sizeof(busy_block_s);  
 	free_block_t current, previous;  
 
-  // printf("busy_block size: %lu, real_size: %d\n", sizeof(busy_block_s), real_size);
+  printf("busy_block size: %lu, real_size: %d\n", sizeof(busy_block_s), real_size);
 
   for (current = first_free; current != NULL; current = current->next) {
     // We found an empty block with enough space
@@ -58,20 +58,30 @@ char *memory_alloc(int size) {
 		if (current->size > real_size) {                    
         // It was the first free block
         if (current == first_free) {
-          // TODO we're assuming the block is initialized only with the required size
-          first_free = first_free + real_size;
-          first_free->size = first_free->size - real_size;  
+          // Check if there's enough space to move first_free
+          if (((uintptr_t)first_free + real_size) >= ((uintptr_t)memory + MEMORY_SIZE)) {
+            first_free = NULL;
+          } else {
+            // Enough space, just move first_free 
+            int old_first_free_size = first_free->size;
+            first_free = (free_block_t)((uintptr_t)first_free + real_size);
+            first_free->size = (old_first_free_size + sizeof(free_block_s)) - real_size; 
+          }
         }
-        // Somewhere else, link the previous to the next one 
+        // Somewhere else, link the prevoious to the next one 
         else {          
           previous->next = current->next; 
         }
 
-        // Create a busy block
+        // Create a new busy block
         busy_block_t new_busy_block = (busy_block_t)current;
-        new_busy_block->size = (current->size + sizeof(free_block_s)) - sizeof(busy_block_s);
-        // TODO delete this line once the blocks use only the required size
-        first_free = NULL;
+        // We need to make sure this block can hold a free block header in the future
+        if (real_size < sizeof(free_block_s)) {
+          // TODO think about this. Why would a free block sizeof(free_block_s) be usefull? -- maybe it it's merged..
+          new_busy_block->size = sizeof(free_block_s);
+        } else {
+          new_busy_block->size = size;
+        }
 			             
        printf("current: %lu\n", (uintptr_t)current); // NOTE this looks weird, why? (maybe virtual address)
       return (char *)((uintptr_t)current + sizeof(busy_block_s));	    
@@ -89,22 +99,26 @@ It updates the list of the free blocks and merge contiguous blocks.
 void memory_free(char *p) {
   // print_free_info(p);   printf("%d\n", (int)p);
 
-  // Find the busy block headear
+  // Find the busy block headear  
   busy_block_t occupied_block = (busy_block_t)((uintptr_t)p - sizeof(busy_block_s));
+  int old_occupied_size = occupied_block->size;
+  printf("\noccupied block size: %d\n", occupied_block->size);  
+
   // Make it a free block
   free_block_t free_block = (free_block_t)((uintptr_t)occupied_block);
-  free_block->size = (occupied_block->size + sizeof(busy_block_s)) - sizeof(free_block_s);
+  free_block->size = (old_occupied_size + sizeof(busy_block_s)) - sizeof(free_block_s);
 
   // If we ran out of free blocks
   if (first_free == NULL) {
     first_free = free_block;
     first_free->next = NULL;
-  } 
+  }
   // Update the list of free blocks
   else {
     // First free is located after free_block
     if ((uintptr_t)first_free > (uintptr_t)free_block) {
       free_block->next = first_free;
+      printf("here: %d\n", free_block->next->size);
       first_free = free_block;
     } 
     // There's at least one empty free block before free_block
@@ -127,7 +141,7 @@ void memory_free(char *p) {
   }
 
   printf("occupied_block: %lu\n", (uintptr_t)occupied_block);  
-  printf("free_block->size: %d\n", free_block->size);
+  printf("free_block->size (ex occupied_block): %d\n", free_block->size);
 }
 
 
@@ -203,17 +217,29 @@ int main(int argc, char **argv){
 
   /* The main can be changed, it is *not* involved in tests */
   memory_init();
-  // printf("malloc: %d\n", (int)memory_alloc(1));
+  char *b = memory_alloc(30);
+  printf("malloc returned: %lu\n", (uintptr_t)b);
+  printf("first_free: %lu\n", (uintptr_t)first_free);
+  if (b != NULL) {
+    memory_free(b);
+    printf("first_free after free: %lu\n", (uintptr_t)first_free);
+    printf("first_free->size after free: %d\n", first_free->size);
+
+    printf("second free: %lu\n", (uintptr_t)first_free->next);
+    printf("second free size: %d\n", first_free->next->size); // TODO wrong size
+  }
+  
+  printf("\n\n\n");
 
   int i ; 
-  for (i = 0; i < 1; i++) {
-    char *b = memory_alloc(16);//memory_alloc(rand()%8);
-    printf("b: %lu\n", (uintptr_t)b);
+  for (i = 0; i < 2; i++) {
+    char *c = memory_alloc(rand()%8);
+    printf("malloc b: %lu\n", (uintptr_t)c);
     printf("first_free: %lu\n", (uintptr_t)first_free);
-    memory_free(b); 
+    memory_free(c); 
     printf("first_free after free: %lu\n", (uintptr_t)first_free);
     // print_free_blocks();
-  }
+  } 
 
   /*
   char * a = memory_alloc(15);
