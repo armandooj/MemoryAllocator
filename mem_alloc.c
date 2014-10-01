@@ -42,7 +42,7 @@ Initialize the list of free blocks with a single free block corresponding to the
 void memory_init(void) {
 	first_free = (free_block_t)((uintptr_t)memory);
   // printf("memory: %lu\n", (uintptr_t)first_free);
-	first_free->size = MEMORY_SIZE - sizeof(free_block_s);
+	first_free->size = MEMORY_SIZE;
 	first_free->next = NULL;
 }
 
@@ -125,7 +125,7 @@ void memory_free(char *p) {
 
   // Make it a free block
   free_block_t free_block = (free_block_t)((uintptr_t)occupied_block);
-  free_block->size = (old_occupied_size + sizeof(busy_block_s)) - sizeof(free_block_s);
+  free_block->size = (old_occupied_size + sizeof(busy_block_s));
 
   // If we ran out of free blocks
   if (first_free == NULL) {
