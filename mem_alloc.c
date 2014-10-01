@@ -70,7 +70,7 @@ char *memory_alloc(int size) {
   // We need to make sure this block can hold a free block header in the future
   real_size = (real_size < sizeof(free_block_s)) ? sizeof(free_block_s) : real_size;	
   */
-
+  
   // printf("busy_block size: %lu, real_size: %d\n", sizeof(busy_block_s), real_size);
 
   for (current = first_free; current != NULL; current = current->next) {
