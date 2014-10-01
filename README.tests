@@ -1,0 +1,47 @@
+alloc1.test: 
+
+  This test is a simple sequence of memory allocation and should be
+  the same whatever the allocation algorithm you use. It only aims at
+  checking that the allocation mechanism works and does not need the free
+  mechanism to be implemented.
+
+alloc2.test:
+
+  This test is the following of the previous one but frees the second
+  and the fourth memory area. It aims at checking that your
+  implementation of free is correct.
+
+alloc3.test:
+
+  This test is the following of the previous one and allocates two
+  more chunks. The first fit strategy should get "fooled" by this
+  allocation. Explain why.
+
+alloc4.test:
+
+  This test is similar to the previous one except for the size of the
+  last tow chunks that differs. The best fit strategy should get
+  "fooled" by this allocation. Explain why.
+
+alloc5.test:
+
+  This tests is meant to test that your free function merges
+  contiguous free chunks of memory (no deferred coalescing!).
+
+test_leak.test:
+
+  This tests uses the LD_PRELOAD variable to replace the libc
+  malloc,free, realloc by the one you defined in libmalloc.so. Then it
+  runs the program leak_test.c which does recursive calls and
+  leaks. You can easily check it using valgrind by hand (and without
+  the LD_PRELOAD of course).
+
+test_leak2.test:
+
+  This tests keeps using the LD_PRELOAD variable to replace the libc
+  malloc,free, realloc by the one you defined in libmalloc.so. Then it
+  tests runs the program leak_test.c with a special argument which
+  prevents it from leaking. Again, you can easily check this behavior
+  using valgrind.
+  
+
