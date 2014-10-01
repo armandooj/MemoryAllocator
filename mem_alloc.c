@@ -143,13 +143,15 @@ void memory_free(char *p) {
     // There's at least one empty free block before free_block
     else {
       free_block_t current;           
-      for (current = first_free; (uintptr_t)current > (uintptr_t)free_block; current = current->next) {      
+      for (current = first_free; (uintptr_t)current < (uintptr_t)free_block; current = current->next) {              
         // We need to find the closest free block before free_block
         if ((uintptr_t)current->next > (uintptr_t)free_block) {
           // just link free_block
           free_block->next = current->next;
           current->next = free_block;
-        } else if (current->next == NULL) {
+
+        } 
+        else if (current->next == NULL) {
           current->next = free_block;
           free_block->next = NULL;
         }
