@@ -17,7 +17,7 @@ Size: 16 bytes
 typedef struct free_block{
   int size; 
   struct free_block *next; 
-} free_block_s, *free_block_t; 
+} free_block_s, *free_block_t;
 
 /* 
 Structure declaration for occupied blocks 
@@ -76,7 +76,17 @@ char *memory_alloc(int size) {
   for (current = first_free; current != NULL; current = current->next) {
     // We found an empty block with enough space
     // First fit criteria
-		if (current->size > real_size) {                    
+		if (current->size > real_size) {
+
+        // TODO what's happening to the empty spaces??
+
+        // Make sure that when we allocate something in a free block, the remaining empty space can hold at least another free block
+        if (current->size - real_size < sizeof(free_block_s)) {
+          // Use all the block
+          size = current->size - sizeof(busy_block_s);
+          real_size = size + sizeof(busy_block_s);
+        }
+
         // It was the first free block
         if (current == first_free) {
           // Check if there's enough space to move first_free                              
