@@ -66,7 +66,7 @@ char *memory_alloc(int size) {
   // the size needed for both memory and header
 	int real_size = size + sizeof(busy_block_s); 
 
-  for (current = first_free; current != NULL; current = current->next) {    
+  for (current = first_free; current != NULL; current = current->next) {
     // We found an empty block with enough space
     // First fit criteria
 		if (current->size >= real_size) {         // TODO should be >= ???
@@ -170,34 +170,45 @@ void memory_free(char *p) {
     } 
     // There's at least one empty free block before free_block
     else {
-      free_block_t current;           
-      for (current = first_free; (uintptr_t)current < (uintptr_t)free_block; current = current->next) {              
+      free_block_t current; 
+      for (current = first_free; (uintptr_t)current < (uintptr_t)free_block; current = current->next) {
         // We need to find the closest free block before free_block
         if ((uintptr_t)current->next > (uintptr_t)free_block) {
           // just link free_block
           free_block->next = current->next;
           current->next = free_block;
-        } 
+        }
         else if (current->next == NULL) {
           current->next = free_block;
           free_block->next = NULL;
         }
-      } 
+      }
     }
   }
 
-  // TODO Merge contiguous blocks
-  while (1) {
-    break;
-  }
-
+  // Merge contiguous blocks
   // Note. Another apporoach would be to not merge at all here but wait until there's not enough memory for an allocation and then try
-  // to merge free blocks
+  // to merge free blocks  
+  int merged_blocks;
+  do {
+    merged_blocks = 0;
+    free_block_t current;
 
-  // printf("occupied_block: %lu\n", (uintptr_t)occupied_block);  
-  // printf("free_block->size (ex occupied_block): %d\n", free_block->size);
+    for (current = first_free; (uintptr_t)current < (uintptr_t)free_block; current = current->next) {
+      if (current->next != NULL) {
+        // Find two contiguous free blocks and merge them
+        if ((uintptr_t)current->next == ((uintptr_t)current + current->size)) {
+          current->size += current->next->size;
+          current->next = current->next->next;
+          // Start again - Unefficient but works for now
+          merged_blocks = 1;
+          current = first_free;
+        }
+      }
+    }
+  }
+  while (merged_blocks);
 }
-
 
 void print_info(void) {
   fprintf(stderr, "Memory : [%lu %lu] (%lu bytes)\n", (long unsigned int) 0, (long unsigned int) (memory+MEMORY_SIZE), (long unsigned int) (MEMORY_SIZE));
@@ -275,16 +286,15 @@ int main(int argc, char **argv){
   /*
   memory_alloc(20);
   char *b = memory_alloc(20);
-  memory_alloc(10);
+  char *d = memory_alloc(10);
   char *c = memory_alloc(15);
   memory_alloc(20);
 
   memory_free(b);
+  print_free_blocks();
   memory_free(c);
-
-  memory_alloc(10);
-  memory_alloc(20);
-
+  print_free_blocks();
+  memory_free(d);    
   print_free_blocks();
   */
 
