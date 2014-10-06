@@ -69,9 +69,7 @@ char *memory_alloc(int size) {
   for (current = first_free; current != NULL; current = current->next) {
     // We found an empty block with enough space
     // First fit criteria
-		if (current->size >= real_size) {         // TODO should be >= ???
-
-      // TODO what's happening to the empty spaces??
+		if (current->size >= real_size) {
 
       // Make sure that when we allocate something in a free block, the remaining empty space can hold at least another free block
       if (current->size - real_size < sizeof(free_block_s)) {
@@ -82,19 +80,21 @@ char *memory_alloc(int size) {
 
       // It was the first free block
       if (current == first_free) {
-        // If there's another free block after, just make it the first free
+        // If there's another free block after
         if (first_free->next != NULL) {
-          if(first_free->size - real_size >= sizeof(free_block_s)){
-
+          // If there's enough space for a new free block, create it
+          if (first_free->size - real_size >= sizeof(free_block_s)) {
             int old_first_free_size = first_free->size;
             free_block_t old_next = first_free->next;
 
             first_free = (free_block_t)((uintptr_t)first_free + real_size);
             first_free->size = old_first_free_size - real_size; 
             first_free->next = old_next;
-
           }
-          else first_free = first_free->next;
+          else {
+            // otherwise, just make it the first free
+            first_free = first_free->next;
+          }
         } else {
 
           // TODO there may be busy blocks here, can't just move it like that
@@ -105,12 +105,10 @@ char *memory_alloc(int size) {
           } else {
             // Enough space, just move first_free 
             int old_first_free_size = first_free->size;
-            free_block_t old_next = first_free->next; //TODO this is always null ?!?
-
             first_free = (free_block_t)((uintptr_t)first_free + real_size);
 
             first_free->size = old_first_free_size - real_size; 
-            first_free->next = old_next;
+            first_free->next = NULL;
           }
         }
       }
@@ -154,17 +152,16 @@ char *memory_alloc(int size) {
 }
 
 /*
-This method frees the zone adressed by zone. whose address is given receives an address to an occupied block. 
+This method frees the zone adressed by zone whose address is given receives an address to an occupied block. 
 It updates the list of the free blocks and merge contiguous blocks.
 */
 void memory_free(char *p) {
 
   print_free_info(p);
 
-  // Find the busy block headear  
+  // Find the busy block header  
   busy_block_t occupied_block = (busy_block_t)((uintptr_t)p - sizeof(busy_block_s));
   int old_occupied_size = occupied_block->size;
-  // printf("\noccupied block size: %d\n", occupied_block->size);  
 
   // Make it a free block
   free_block_t free_block = (free_block_t)((uintptr_t)occupied_block);
