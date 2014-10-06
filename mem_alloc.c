@@ -84,7 +84,17 @@ char *memory_alloc(int size) {
       if (current == first_free) {
         // If there's another free block after, just make it the first free
         if (first_free->next != NULL) {
-          first_free = first_free->next;
+          if(first_free->size - real_size >= sizeof(free_block_s)){
+
+            int old_first_free_size = first_free->size;
+            free_block_t old_next = first_free->next;
+
+            first_free = (free_block_t)((uintptr_t)first_free + real_size);
+            first_free->size = old_first_free_size - real_size; 
+            first_free->next = old_next;
+
+          }
+          else first_free = first_free->next;
         } else {
 
           // TODO there may be busy blocks here, can't just move it like that
@@ -95,8 +105,12 @@ char *memory_alloc(int size) {
           } else {
             // Enough space, just move first_free 
             int old_first_free_size = first_free->size;
+            free_block_t old_next = first_free->next; //TODO this is always null ?!?
+
             first_free = (free_block_t)((uintptr_t)first_free + real_size);
+
             first_free->size = old_first_free_size - real_size; 
+            first_free->next = old_next;
           }
         }
       }
@@ -198,11 +212,12 @@ void memory_free(char *p) {
       if (current->next != NULL) {
         // Find two contiguous free blocks and merge them
         if ((uintptr_t)current->next == ((uintptr_t)current + current->size)) {
-          current->size += current->next->size;
+          current->size = current->size + current->next->size;
           current->next = current->next->next;
           // Start again - Unefficient but works for now
           merged_blocks = 1;
           current = first_free;
+          break;
         }
       }
     }
