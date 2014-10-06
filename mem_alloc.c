@@ -194,7 +194,7 @@ void memory_free(char *p) {
     merged_blocks = 0;
     free_block_t current;
 
-    for (current = first_free; (uintptr_t)current < (uintptr_t)free_block; current = current->next) {
+    for (current = first_free; current != NULL; current = current->next) {
       if (current->next != NULL) {
         // Find two contiguous free blocks and merge them
         if ((uintptr_t)current->next == ((uintptr_t)current + current->size)) {
