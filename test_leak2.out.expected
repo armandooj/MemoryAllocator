@@ -1,0 +1,462 @@
+ALLOC at : 4 (12 byte(s))
+ALLOC at : 20 (12 byte(s))
+ALLOC at : 36 (12 byte(s))
+ALLOC at : 52 (12 byte(s))
+ALLOC at : 68 (12 byte(s))
+ALLOC at : 84 (12 byte(s))
+ALLOC at : 100 (12 byte(s))
+ALLOC at : 116 (12 byte(s))
+ALLOC at : 132 (12 byte(s))
+ALLOC at : 148 (12 byte(s))
+ALLOC at : 164 (12 byte(s))
+ALLOC at : 180 (12 byte(s))
+ALLOC at : 196 (12 byte(s))
+ALLOC at : 212 (12 byte(s))
+FREE  at : 196 
+Begin of free block list :
+Free block at address 192, size 16
+Free block at address 224, size 65312
+ALLOC at : 196 (12 byte(s))
+FREE  at : 196 
+Begin of free block list :
+Free block at address 192, size 16
+Free block at address 224, size 65312
+FREE  at : 212 
+Begin of free block list :
+Free block at address 192, size 65344
+FREE  at : 164 
+Begin of free block list :
+Free block at address 160, size 16
+Free block at address 192, size 65344
+ALLOC at : 164 (12 byte(s))
+FREE  at : 164 
+Begin of free block list :
+Free block at address 160, size 16
+Free block at address 192, size 65344
+FREE  at : 180 
+Begin of free block list :
+Free block at address 160, size 65376
+FREE  at : 132 
+Begin of free block list :
+Free block at address 128, size 16
+Free block at address 160, size 65376
+ALLOC at : 132 (12 byte(s))
+ALLOC at : 164 (12 byte(s))
+ALLOC at : 180 (12 byte(s))
+FREE  at : 164 
+Begin of free block list :
+Free block at address 160, size 16
+Free block at address 192, size 65344
+ALLOC at : 164 (12 byte(s))
+FREE  at : 164 
+Begin of free block list :
+Free block at address 160, size 16
+Free block at address 192, size 65344
+FREE  at : 180 
+Begin of free block list :
+Free block at address 160, size 65376
+FREE  at : 132 
+Begin of free block list :
+Free block at address 128, size 16
+Free block at address 160, size 65376
+FREE  at : 148 
+Begin of free block list :
+Free block at address 128, size 65408
+FREE  at : 100 
+Begin of free block list :
+Free block at address 96, size 16
+Free block at address 128, size 65408
+ALLOC at : 100 (12 byte(s))
+ALLOC at : 132 (12 byte(s))
+ALLOC at : 148 (12 byte(s))
+ALLOC at : 164 (12 byte(s))
+ALLOC at : 180 (12 byte(s))
+FREE  at : 164 
+Begin of free block list :
+Free block at address 160, size 16
+Free block at address 192, size 65344
+ALLOC at : 164 (12 byte(s))
+FREE  at : 164 
+Begin of free block list :
+Free block at address 160, size 16
+Free block at address 192, size 65344
+FREE  at : 180 
+Begin of free block list :
+Free block at address 160, size 65376
+FREE  at : 132 
+Begin of free block list :
+Free block at address 128, size 16
+Free block at address 160, size 65376
+ALLOC at : 132 (12 byte(s))
+FREE  at : 132 
+Begin of free block list :
+Free block at address 128, size 16
+Free block at address 160, size 65376
+FREE  at : 148 
+Begin of free block list :
+Free block at address 128, size 65408
+FREE  at : 100 
+Begin of free block list :
+Free block at address 96, size 16
+Free block at address 128, size 65408
+FREE  at : 116 
+Begin of free block list :
+Free block at address 96, size 65440
+FREE  at : 68 
+Begin of free block list :
+Free block at address 64, size 16
+Free block at address 96, size 65440
+ALLOC at : 68 (12 byte(s))
+ALLOC at : 100 (12 byte(s))
+ALLOC at : 116 (12 byte(s))
+ALLOC at : 132 (12 byte(s))
+ALLOC at : 148 (12 byte(s))
+ALLOC at : 164 (12 byte(s))
+ALLOC at : 180 (12 byte(s))
+FREE  at : 164 
+Begin of free block list :
+Free block at address 160, size 16
+Free block at address 192, size 65344
+ALLOC at : 164 (12 byte(s))
+FREE  at : 164 
+Begin of free block list :
+Free block at address 160, size 16
+Free block at address 192, size 65344
+FREE  at : 180 
+Begin of free block list :
+Free block at address 160, size 65376
+FREE  at : 132 
+Begin of free block list :
+Free block at address 128, size 16
+Free block at address 160, size 65376
+ALLOC at : 132 (12 byte(s))
+FREE  at : 132 
+Begin of free block list :
+Free block at address 128, size 16
+Free block at address 160, size 65376
+FREE  at : 148 
+Begin of free block list :
+Free block at address 128, size 65408
+FREE  at : 100 
+Begin of free block list :
+Free block at address 96, size 16
+Free block at address 128, size 65408
+ALLOC at : 100 (12 byte(s))
+ALLOC at : 132 (12 byte(s))
+ALLOC at : 148 (12 byte(s))
+FREE  at : 132 
+Begin of free block list :
+Free block at address 128, size 16
+Free block at address 160, size 65376
+ALLOC at : 132 (12 byte(s))
+FREE  at : 132 
+Begin of free block list :
+Free block at address 128, size 16
+Free block at address 160, size 65376
+FREE  at : 148 
+Begin of free block list :
+Free block at address 128, size 65408
+FREE  at : 100 
+Begin of free block list :
+Free block at address 96, size 16
+Free block at address 128, size 65408
+FREE  at : 116 
+Begin of free block list :
+Free block at address 96, size 65440
+FREE  at : 68 
+Begin of free block list :
+Free block at address 64, size 16
+Free block at address 96, size 65440
+FREE  at : 84 
+Begin of free block list :
+Free block at address 64, size 65472
+FREE  at : 36 
+Begin of free block list :
+Free block at address 32, size 16
+Free block at address 64, size 65472
+ALLOC at : 36 (12 byte(s))
+ALLOC at : 68 (12 byte(s))
+ALLOC at : 84 (12 byte(s))
+ALLOC at : 100 (12 byte(s))
+ALLOC at : 116 (12 byte(s))
+ALLOC at : 132 (12 byte(s))
+ALLOC at : 148 (12 byte(s))
+ALLOC at : 164 (12 byte(s))
+ALLOC at : 180 (12 byte(s))
+FREE  at : 164 
+Begin of free block list :
+Free block at address 160, size 16
+Free block at address 192, size 65344
+ALLOC at : 164 (12 byte(s))
+FREE  at : 164 
+Begin of free block list :
+Free block at address 160, size 16
+Free block at address 192, size 65344
+FREE  at : 180 
+Begin of free block list :
+Free block at address 160, size 65376
+FREE  at : 132 
+Begin of free block list :
+Free block at address 128, size 16
+Free block at address 160, size 65376
+ALLOC at : 132 (12 byte(s))
+FREE  at : 132 
+Begin of free block list :
+Free block at address 128, size 16
+Free block at address 160, size 65376
+FREE  at : 148 
+Begin of free block list :
+Free block at address 128, size 65408
+FREE  at : 100 
+Begin of free block list :
+Free block at address 96, size 16
+Free block at address 128, size 65408
+ALLOC at : 100 (12 byte(s))
+ALLOC at : 132 (12 byte(s))
+ALLOC at : 148 (12 byte(s))
+FREE  at : 132 
+Begin of free block list :
+Free block at address 128, size 16
+Free block at address 160, size 65376
+ALLOC at : 132 (12 byte(s))
+FREE  at : 132 
+Begin of free block list :
+Free block at address 128, size 16
+Free block at address 160, size 65376
+FREE  at : 148 
+Begin of free block list :
+Free block at address 128, size 65408
+FREE  at : 100 
+Begin of free block list :
+Free block at address 96, size 16
+Free block at address 128, size 65408
+FREE  at : 116 
+Begin of free block list :
+Free block at address 96, size 65440
+FREE  at : 68 
+Begin of free block list :
+Free block at address 64, size 16
+Free block at address 96, size 65440
+ALLOC at : 68 (12 byte(s))
+ALLOC at : 100 (12 byte(s))
+ALLOC at : 116 (12 byte(s))
+ALLOC at : 132 (12 byte(s))
+ALLOC at : 148 (12 byte(s))
+FREE  at : 132 
+Begin of free block list :
+Free block at address 128, size 16
+Free block at address 160, size 65376
+ALLOC at : 132 (12 byte(s))
+FREE  at : 132 
+Begin of free block list :
+Free block at address 128, size 16
+Free block at address 160, size 65376
+FREE  at : 148 
+Begin of free block list :
+Free block at address 128, size 65408
+FREE  at : 100 
+Begin of free block list :
+Free block at address 96, size 16
+Free block at address 128, size 65408
+ALLOC at : 100 (12 byte(s))
+FREE  at : 100 
+Begin of free block list :
+Free block at address 96, size 16
+Free block at address 128, size 65408
+FREE  at : 116 
+Begin of free block list :
+Free block at address 96, size 65440
+FREE  at : 68 
+Begin of free block list :
+Free block at address 64, size 16
+Free block at address 96, size 65440
+FREE  at : 84 
+Begin of free block list :
+Free block at address 64, size 65472
+FREE  at : 36 
+Begin of free block list :
+Free block at address 32, size 16
+Free block at address 64, size 65472
+FREE  at : 52 
+Begin of free block list :
+Free block at address 32, size 65504
+FREE  at : 4 
+Begin of free block list :
+Free block at address 0, size 16
+Free block at address 32, size 65504
+ALLOC at : 4 (12 byte(s))
+ALLOC at : 36 (12 byte(s))
+ALLOC at : 52 (12 byte(s))
+ALLOC at : 68 (12 byte(s))
+ALLOC at : 84 (12 byte(s))
+ALLOC at : 100 (12 byte(s))
+ALLOC at : 116 (12 byte(s))
+ALLOC at : 132 (12 byte(s))
+ALLOC at : 148 (12 byte(s))
+ALLOC at : 164 (12 byte(s))
+ALLOC at : 180 (12 byte(s))
+FREE  at : 164 
+Begin of free block list :
+Free block at address 160, size 16
+Free block at address 192, size 65344
+ALLOC at : 164 (12 byte(s))
+FREE  at : 164 
+Begin of free block list :
+Free block at address 160, size 16
+Free block at address 192, size 65344
+FREE  at : 180 
+Begin of free block list :
+Free block at address 160, size 65376
+FREE  at : 132 
+Begin of free block list :
+Free block at address 128, size 16
+Free block at address 160, size 65376
+ALLOC at : 132 (12 byte(s))
+FREE  at : 132 
+Begin of free block list :
+Free block at address 128, size 16
+Free block at address 160, size 65376
+FREE  at : 148 
+Begin of free block list :
+Free block at address 128, size 65408
+FREE  at : 100 
+Begin of free block list :
+Free block at address 96, size 16
+Free block at address 128, size 65408
+ALLOC at : 100 (12 byte(s))
+ALLOC at : 132 (12 byte(s))
+ALLOC at : 148 (12 byte(s))
+FREE  at : 132 
+Begin of free block list :
+Free block at address 128, size 16
+Free block at address 160, size 65376
+ALLOC at : 132 (12 byte(s))
+FREE  at : 132 
+Begin of free block list :
+Free block at address 128, size 16
+Free block at address 160, size 65376
+FREE  at : 148 
+Begin of free block list :
+Free block at address 128, size 65408
+FREE  at : 100 
+Begin of free block list :
+Free block at address 96, size 16
+Free block at address 128, size 65408
+FREE  at : 116 
+Begin of free block list :
+Free block at address 96, size 65440
+FREE  at : 68 
+Begin of free block list :
+Free block at address 64, size 16
+Free block at address 96, size 65440
+ALLOC at : 68 (12 byte(s))
+ALLOC at : 100 (12 byte(s))
+ALLOC at : 116 (12 byte(s))
+ALLOC at : 132 (12 byte(s))
+ALLOC at : 148 (12 byte(s))
+FREE  at : 132 
+Begin of free block list :
+Free block at address 128, size 16
+Free block at address 160, size 65376
+ALLOC at : 132 (12 byte(s))
+FREE  at : 132 
+Begin of free block list :
+Free block at address 128, size 16
+Free block at address 160, size 65376
+FREE  at : 148 
+Begin of free block list :
+Free block at address 128, size 65408
+FREE  at : 100 
+Begin of free block list :
+Free block at address 96, size 16
+Free block at address 128, size 65408
+ALLOC at : 100 (12 byte(s))
+FREE  at : 100 
+Begin of free block list :
+Free block at address 96, size 16
+Free block at address 128, size 65408
+FREE  at : 116 
+Begin of free block list :
+Free block at address 96, size 65440
+FREE  at : 68 
+Begin of free block list :
+Free block at address 64, size 16
+Free block at address 96, size 65440
+FREE  at : 84 
+Begin of free block list :
+Free block at address 64, size 65472
+FREE  at : 36 
+Begin of free block list :
+Free block at address 32, size 16
+Free block at address 64, size 65472
+ALLOC at : 36 (12 byte(s))
+ALLOC at : 68 (12 byte(s))
+ALLOC at : 84 (12 byte(s))
+ALLOC at : 100 (12 byte(s))
+ALLOC at : 116 (12 byte(s))
+ALLOC at : 132 (12 byte(s))
+ALLOC at : 148 (12 byte(s))
+FREE  at : 132 
+Begin of free block list :
+Free block at address 128, size 16
+Free block at address 160, size 65376
+ALLOC at : 132 (12 byte(s))
+FREE  at : 132 
+Begin of free block list :
+Free block at address 128, size 16
+Free block at address 160, size 65376
+FREE  at : 148 
+Begin of free block list :
+Free block at address 128, size 65408
+FREE  at : 100 
+Begin of free block list :
+Free block at address 96, size 16
+Free block at address 128, size 65408
+ALLOC at : 100 (12 byte(s))
+FREE  at : 100 
+Begin of free block list :
+Free block at address 96, size 16
+Free block at address 128, size 65408
+FREE  at : 116 
+Begin of free block list :
+Free block at address 96, size 65440
+FREE  at : 68 
+Begin of free block list :
+Free block at address 64, size 16
+Free block at address 96, size 65440
+ALLOC at : 68 (12 byte(s))
+ALLOC at : 100 (12 byte(s))
+ALLOC at : 116 (12 byte(s))
+FREE  at : 100 
+Begin of free block list :
+Free block at address 96, size 16
+Free block at address 128, size 65408
+ALLOC at : 100 (12 byte(s))
+FREE  at : 100 
+Begin of free block list :
+Free block at address 96, size 16
+Free block at address 128, size 65408
+FREE  at : 116 
+Begin of free block list :
+Free block at address 96, size 65440
+FREE  at : 68 
+Begin of free block list :
+Free block at address 64, size 16
+Free block at address 96, size 65440
+FREE  at : 84 
+Begin of free block list :
+Free block at address 64, size 65472
+FREE  at : 36 
+Begin of free block list :
+Free block at address 32, size 16
+Free block at address 64, size 65472
+FREE  at : 52 
+Begin of free block list :
+Free block at address 32, size 65504
+FREE  at : 4 
+Begin of free block list :
+Free block at address 0, size 16
+Free block at address 32, size 65504
+FREE  at : 20 
+Begin of free block list :
+Free block at address 0, size 65536
