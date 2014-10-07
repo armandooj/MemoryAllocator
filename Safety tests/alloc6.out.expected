@@ -1,0 +1,13 @@
+ALLOC at : 4 (20 byte(s))
+ALLOC at : 28 (20 byte(s))
+Begin of free block list :
+Free block at address 48, size 464
+FREE  at : 28
+Begin of free block list :
+Free block at address 24, size 488
+FREE  at : 28
+Begin of free block list :
+Free block at address 24, size 488
+FREE  at : 30
+Begin of free block list :
+Free block at address 24, size 488
