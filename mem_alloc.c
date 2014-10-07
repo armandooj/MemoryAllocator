@@ -7,9 +7,9 @@
 #define ALIGNMENT_CONSTANT 4
 #define MINIMUM_SIZE 12
 
-#define FIRST 0
-#define BEST  0
-#define WORST  1
+#define FIRST 1
+#define BEST 0
+#define WORST 0
 
 /* memory */
 char memory[MEMORY_SIZE]; 
@@ -367,14 +367,32 @@ char *heap_base(void) {
   return memory;
 }
 
+void log_internal_fragmentation(void) {
+  free_block_t current;
+  for (current = first_free; current != NULL; current = current->next) {}
+  fprintf(stdout, "%lu ", (uintptr_t)current - (uintptr_t)memory);
+}
+
+void log_external_fragmentation(void) {
+  int allocator_used_memory = MEMORY_SIZE;
+  free_block_t current;
+  for (current = first_free; current != NULL; current = current->next) {
+    allocator_used_memory = allocator_used_memory - current->size + sizeof(free_block_s);
+  }
+  fprintf(stdout,"%u ", allocator_used_memory);
+}
 
 void *malloc(size_t size){
-  static int init_flag = 0; 
+  static int init_flag = 0;
   if(!init_flag){
     init_flag = 1; 
     memory_init(); 
     //print_info(); 
   }      
+
+  log_internal_fragmentation();
+  log_external_fragmentation();
+
   return (void*)memory_alloc((size_t)size); 
 }
 
