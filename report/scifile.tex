@@ -65,9 +65,6 @@
   tabsize=3
 }
 
-%FOR DIAGRAM
-\usepackage{tikz}
-\usetikzlibrary{shapes,arrows}
 
 %%%%%%%%%%%%%%%%% END OF PREAMBLE %%%%%%%%%%%%%%%%
 
@@ -132,31 +129,6 @@ It happens when the amount of free space is not enough to hold at least the head
 
 To implement a memory allocator means define how \textbf{initialize}, \textbf{allocate} and \textbf{free} the memory using one of the approach presented in the first chapter. The given C skeleton is capable to redirect the call to the \textit{real} malloc (the one used by the operating system) to our implementation, and it has also a makefile that compare the executions of our program with some expected outputs.
  
-\begin{center}
-% Define block styles
-\tikzstyle{decision} = [diamond, draw, text width=4.5em, text badly centered, node distance=3cm, inner sep=0pt]
-\tikzstyle{block} = [rectangle, draw, text width=5em, text centered, rounded corners, minimum height=4em]
-\tikzstyle{line} = [draw, -latex']
-
-\begin{tikzpicture}[node distance = 4cm, auto]
-    % Place nodes
-    \node [block] (init) {index.html: call doGet};
-    \node [decision, below of=init] (doGet) {doGet: parameter are setted?};
-    \node [block, left of=doGet] (form) {Display the form to the user};
-    \node [block, below of=form] (submit) {submit using doPost};
-    \node [block, right of=submit] (doPost) {doPost: calls doGet};
-    \node [block, right of=doGet] (show) {Display the message};
-    % Draw edges
-    \path [line] (init) -- (doGet);
-    \path [line] (doGet) -- node {no} (form);
-    \path [line] (form) -- (submit);
-    \path [line] (submit) -- (doPost);
-    \path [line] (doPost) -- (doGet);
-    \path [line] (doGet) -- node {yes} (show);
-
-\end{tikzpicture}
-\end{center}
-
 \section{Experiment}
 \section{Conclusion}
 \end{document}
