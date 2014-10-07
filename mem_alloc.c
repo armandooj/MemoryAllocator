@@ -158,6 +158,18 @@ It updates the list of the free blocks and merge contiguous blocks.
 void memory_free(char *p) {
 
   print_free_info(p);
+  free_block_t current;
+
+  // free a currently unallocated memory zone
+  // free a fraction of an allocated zone
+
+  // Check it's not within a free block
+  for (current = first_free; current != NULL; current = current->next) {
+    uintptr_t location = (uintptr_t)p - sizeof(busy_block_s);
+    if (location >= (uintptr_t)current && location < ((uintptr_t)current + current->size)) {
+      return;
+    }
+  }
 
   // Find the busy block header  
   busy_block_t occupied_block = (busy_block_t)((uintptr_t)p - sizeof(busy_block_s));
@@ -181,7 +193,6 @@ void memory_free(char *p) {
     } 
     // There's at least one empty free block before free_block
     else {
-      free_block_t current; 
       for (current = first_free; (uintptr_t)current < (uintptr_t)free_block; current = current->next) {
         // We need to find the closest free block before free_block
         if ((uintptr_t)current->next > (uintptr_t)free_block) {
@@ -203,7 +214,6 @@ void memory_free(char *p) {
   int merged_blocks;
   do {
     merged_blocks = 0;
-    free_block_t current;
 
     for (current = first_free; current != NULL; current = current->next) {
       if (current->next != NULL) {
@@ -294,6 +304,17 @@ int main(int argc, char **argv){
 
   /* The main can be changed, it is *not* involved in tests */
   memory_init();
+
+  /*
+  memory_alloc(20);
+  memory_alloc(20);
+  char *c = memory_alloc(20);
+  memory_free(c);
+  memory_free((char *)((uintptr_t)c + 100));
+  //memory_free((char *)((uintptr_t)b * 2));
+
+  print_free_blocks();
+  */
 
   /*
   memory_alloc(20);
