@@ -43,6 +43,9 @@ int main(int argc, char *argv[]) {
 			break;
 		case 'q':
 			exit(0);
+		case 'u':
+			print_unallocated_blocks();
+			break;
 		default:
 			fprintf(stderr,"Command not found !\n");
 		}
