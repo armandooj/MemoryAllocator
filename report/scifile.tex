@@ -1,0 +1,182 @@
+% Use only LaTeX2e, calling the article.cls class and 12-point type.
+
+\documentclass[11pt]{article}
+
+
+% The following parameters seem to provide a reasonable page setup.
+
+\usepackage{geometry}
+ \geometry{
+ a4paper,
+ total={210mm,297mm},
+ left=20mm,
+ right=20mm,
+ top=20mm,
+ bottom=20mm,
+ }
+
+
+
+% Include your paper's title here
+
+\title{Operating System TD1} 
+
+
+% Place the author information here.  Please hand-code the contact
+% information and notecalls; do *not* use \footnote commands.  Let the
+% author contact information appear immediately below the author names
+% as shown.  We would also prefer that you don't change the type-size
+% settings shown here.
+
+\author
+{Armando Ochoa, Alessandro Fenicio}
+
+% Include the date command, but leave its argument blank.
+
+\date{8 October 2014}
+
+
+
+%FOR CODE LISTING
+\usepackage{listings}
+\usepackage{color}
+\usepackage{graphicx} %pictures
+\DeclareGraphicsExtensions{.pdf,.png,.jpg}
+\usepackage{float}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstset{frame=tb,
+  language=Java,
+  aboveskip=1mm,
+  belowskip=0mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true
+  tabsize=3
+}
+
+%FOR DIAGRAM
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows}
+
+%%%%%%%%%%%%%%%%% END OF PREAMBLE %%%%%%%%%%%%%%%%
+
+
+\usepackage{amsmath}
+
+\begin{document} 
+
+% Double-space the manuscript.
+
+%\baselineskip24pt
+
+% Make the title.
+
+\maketitle 
+
+
+
+% Place your abstract within the special {sciabstract} environment.
+\begin{abstract}
+This document was written to show our progress in understanding how to deal with memory allocation. The following sections will present our teamwork and will explain our solutions to the several topics that were proposed.
+\end{abstract}
+
+
+\section{Introduction}
+First of all we start showing the problem. Thanks to the C skeleton was given we have the possibility to implement a kind of fake memory that could be allocated using the function we implemented. Allocate memory means reserve some space inside that fake memory, to distinguish between this to concept of free and allocated space we have to main structures: the \textbf{free block} and the \textbf{busy block}. We will start presenting the different way to allocate memory than we switch to the questions to make the reader more comfortable with our solutions and finally we will discuss about implementation and evaluation of fragmentation
+\subsection{First Best and Worst fit}
+To explain this three approaches we will use that pictures:
+The above black block of size 16k is going to be allocated. Now the question is where it can fit? For sure it cannot be allocated in the block of 8k or 14k because there is not enought space. So we have the free block of 22k 16k and 48k are the possible candidates:
+\begin{description}
+\begin{figure}[H]
+\centering
+\includegraphics*{fbw}
+\caption{First best and worst fit}
+\end{figure}
+  \item[First fit] \hfill \\
+	We choose the 22k block. This block represents simply the first candidate discovered.
+  \item[Best fit] \hfill \\
+  	We choose the 16k block. This block represents the candidate whose size is closer to the one of we are going to allocate. In this case is exactly the same!
+  \item[Worst fit] \hfill \\
+	We choose the 48k block. This block is the candidate who has the bigger available size.
+\end{description}
+
+\textbf{First fit}\\
+\subsection{Questions}
+
+\subsubsection*{Do you have to keep a list for occupied blocks ? If no, explain why, if yes, provide a C definition of the structure.
+No, it's not necessary, Why?}
+We don't keep a list for occupied bloks. Initially we thought at how to handle the problem of exploring free and busy block, and we figured out that we would need at least the free block list. The busy block one is straight forward of the free block list: let's say we want to iterate the busy block list, if the first free is not the first memory address that means that is a busy block. So we can read the first busy header and sum its size to go to the next block. If that address is not in the freeblock list, that means that is a busy block...so we continue again exploring.
+
+\subsubsection*{As a user, can you use addresses 0,1,2 ? Generally speaking, can a user manipulate any address?}
+No. When allocating memory for the user, only the payload's address is returned because he's not allowed to modify  the free$\_$block header, since that would corrupt the whole list of free blocks, and possibly lead to losing information.
+
+\subsubsection*{When a block is freed by the user, which address is used? What should be done in order to reintegrate the zone in the list of free blocks?}
+The address where the payload starts. There is no reason for the user to know the initial address of the busy block, so it's the memory free function's responsability to find it. 
+In order to reintegrate the zone to the list of free blocks, we need to find the closest free block before the new free zone and make it the closest block's next. We also need to make sure that to set it's next as the next the closest free block had before. In short words, link the zone inside the free block's list in it's corresponding position.
+
+\subsubsection*{When a block is allocated inside a free memory zone, one must take care of how the memory is partitioned. In the most simple case, we allocate the beginning of the block for our needs, and the rest of it becomes a new free block. However, it is possible that the rest is too small. How is this possible ? How could you deal with this case?}
+It happens when the amount of free space is not enough to hold at least the header of a free block. One possible solution is to allocate the remaining space as part of the block when it's to small.
+
+\section{Material and Methods}
+
+To implement a memory allocator means define how \textbf{initialize}, \textbf{allocate} and \textbf{free} the memory using one of the approach presented in the first chapter. The given C skeleton is capable to redirect the call to the \textit{real} malloc (the one used by the operating system) to our implementation, and it has also a makefile that compare the executions of our program with some expected outputs.
+ 
+\begin{center}
+% Define block styles
+\tikzstyle{decision} = [diamond, draw, text width=4.5em, text badly centered, node distance=3cm, inner sep=0pt]
+\tikzstyle{block} = [rectangle, draw, text width=5em, text centered, rounded corners, minimum height=4em]
+\tikzstyle{line} = [draw, -latex']
+
+\begin{tikzpicture}[node distance = 4cm, auto]
+    % Place nodes
+    \node [block] (init) {index.html: call doGet};
+    \node [decision, below of=init] (doGet) {doGet: parameter are setted?};
+    \node [block, left of=doGet] (form) {Display the form to the user};
+    \node [block, below of=form] (submit) {submit using doPost};
+    \node [block, right of=submit] (doPost) {doPost: calls doGet};
+    \node [block, right of=doGet] (show) {Display the message};
+    % Draw edges
+    \path [line] (init) -- (doGet);
+    \path [line] (doGet) -- node {no} (form);
+    \path [line] (form) -- (submit);
+    \path [line] (submit) -- (doPost);
+    \path [line] (doPost) -- (doGet);
+    \path [line] (doGet) -- node {yes} (show);
+
+\end{tikzpicture}
+\end{center}
+
+\section{Experiment}
+\section{Conclusion}
+\end{document}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
