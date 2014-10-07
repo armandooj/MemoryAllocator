@@ -31,14 +31,13 @@ typedef struct{
   int size; 
 } busy_block_s, *busy_block_t; 
 
-
 /* Pointer to the first free block in the memory */
 free_block_t first_free; 
-
 
 #define ULONG(x)((long unsigned int)(x))
 #define max(x,y) (x>y?x:y)
 
+char *allocate_block(int size, int real_size, free_block_t previous, free_block_t current);
 
 /*
 Initialize the list of free blocks with a single free block corresponding to the full array.
@@ -54,9 +53,9 @@ This method allocates a block of size size. It returns a pointer to the allocate
 */
 char *memory_alloc(int size) {
   free_block_t current, previous, candidate;
-  int candidated_Size;
+  int candidate_size;
 
-    if (size < MINIMUM_SIZE) {
+  if (size < MINIMUM_SIZE) {
     size = MINIMUM_SIZE;
   }
 
@@ -71,195 +70,118 @@ char *memory_alloc(int size) {
   // the size needed for both memory and header
   int real_size = size + sizeof(busy_block_s);
 
-  if(BEST){
-  candidated_Size=MEMORY_SIZE;
-
-  for (current = first_free; current != NULL; current = current->next)
-    if((current->size >= real_size) && (current->size <= candidated_Size)){
-      candidate = current;
-      candidated_Size= current -> size;
+  if (BEST) {
+    candidate_size = MEMORY_SIZE;
+    for (current = first_free; current != NULL; current = current->next) {
+      if ((current->size >= real_size) && (current->size <= candidate_size)) {
+        candidate = current;
+        candidate_size = current->size;
+      }
     }
   }
 
-  if(WORST){
-  candidated_Size=1;
-
-  for (current = first_free; current != NULL; current = current->next)
-    if((current->size >= real_size) && (current->size >= candidated_Size)){
-      candidate = current;
-      candidated_Size= current -> size;
+  if (WORST) {
+    candidate_size = 1;
+    for (current = first_free; current != NULL; current = current->next) {
+      if((current->size >= real_size) && (current->size >= candidate_size)){
+        candidate = current;
+        candidate_size= current -> size;
+      }
     }
   }
-
-
-
 
   for (current = first_free; current != NULL; current = current->next) {
     // We found an empty block with enough space
     // First fit criteria
-    if(FIRST){
-
-		if (current->size >= real_size) {
-
-      // Make sure that when we allocate something in a free block, the remaining empty space can hold at least another free block
-      if (current->size - real_size < sizeof(free_block_s)) {
-        // Use all the block
-        size = current->size - sizeof(busy_block_s);
-        real_size = size + sizeof(busy_block_s);
-      }
-
-      // It was the first free block
-      if (current == first_free) {
-        // If there's another free block after
-        if (first_free->next != NULL) {
-          // If there's enough space for a new free block, create it
-          if (first_free->size - real_size >= sizeof(free_block_s)) {
-            int old_first_free_size = first_free->size;
-            free_block_t old_next = first_free->next;
-
-            first_free = (free_block_t)((uintptr_t)first_free + real_size);
-            first_free->size = old_first_free_size - real_size; 
-            first_free->next = old_next;
-          }
-          else {
-            // otherwise, just make it the first free
-            first_free = first_free->next;
-          }
-        } else {
-
-          // TODO there may be busy blocks here, can't just move it like that
-
-          // Check if there's enough space to move first_free                              
-          if (((uintptr_t)first_free + real_size) >= ((uintptr_t)memory + MEMORY_SIZE)) {     // check out buddy allocation
-            first_free = NULL;
-          } else {
-            // Enough space, just move first_free 
-            int old_first_free_size = first_free->size;
-            first_free = (free_block_t)((uintptr_t)first_free + real_size);
-
-            first_free->size = old_first_free_size - real_size; 
-            first_free->next = NULL;
-          }
-        }
-      }
-      // Somewhere else
-      else {
-        // If we're using the whole block
-        if (size == current->size - sizeof(busy_block_s)) {
-          // Two scenarios here. If there's another free block after, link the previous to that one, if not, set next to NULL
-          if (current->next != NULL) {
-            previous->next = current->next;
-          } else {
-            // We ran out of space!
-            previous->next = NULL;
-          }
-        } 
-        // There's empty space. Create a new free block there
-        else {
-          int old_free_block_size = current->size;
-          free_block_t new_free_block = (free_block_t)((uintptr_t)current + real_size);
-          new_free_block->size = old_free_block_size - real_size;
-          // And link it, as usual
-          new_free_block->next = current->next;
-          previous->next = new_free_block;
-        }
-      }
-
-      // Create a new busy block
-      busy_block_t new_busy_block = (busy_block_t)current;
-      new_busy_block->size = size;
-
-      char *allocated_memory = (char *)((uintptr_t)current + sizeof(busy_block_s));
-      print_alloc_info(allocated_memory, size);
-			             
-      return allocated_memory;	    
-		}
+    if (FIRST) {
+  		if (current->size >= real_size) {
+        return allocate_block(size, real_size, previous, current);    
+  		}
     }
     else {
-
-      if (current==candidate) {
-
-      // Make sure that when we allocate something in a free block, the remaining empty space can hold at least another free block
-      if (current->size - real_size < sizeof(free_block_s)) {
-        // Use all the block
-        size = current->size - sizeof(busy_block_s);
-        real_size = size + sizeof(busy_block_s);
+      // Best and worst fit
+      if (current == candidate) {
+        return allocate_block(size, real_size, previous, current);
       }
-
-      // It was the first free block
-      if (current == first_free) {
-        // If there's another free block after
-        if (first_free->next != NULL) {
-          // If there's enough space for a new free block, create it
-          if (first_free->size - real_size >= sizeof(free_block_s)) {
-            int old_first_free_size = first_free->size;
-            free_block_t old_next = first_free->next;
-
-            first_free = (free_block_t)((uintptr_t)first_free + real_size);
-            first_free->size = old_first_free_size - real_size; 
-            first_free->next = old_next;
-          }
-          else {
-            // otherwise, just make it the first free
-            first_free = first_free->next;
-          }
-        } else {
-
-          // TODO there may be busy blocks here, can't just move it like that
-
-          // Check if there's enough space to move first_free                              
-          if (((uintptr_t)first_free + real_size) >= ((uintptr_t)memory + MEMORY_SIZE)) {     // check out buddy allocation
-            first_free = NULL;
-          } else {
-            // Enough space, just move first_free 
-            int old_first_free_size = first_free->size;
-            first_free = (free_block_t)((uintptr_t)first_free + real_size);
-
-            first_free->size = old_first_free_size - real_size; 
-            first_free->next = NULL;
-          }
-        }
-      }
-      // Somewhere else
-      else {
-        // If we're using the whole block
-        if (size == current->size - sizeof(busy_block_s)) {
-          // Two scenarios here. If there's another free block after, link the previous to that one, if not, set next to NULL
-          if (current->next != NULL) {
-            previous->next = current->next;
-          } else {
-            // We ran out of space!
-            previous->next = NULL;
-          }
-        } 
-        // There's empty space. Create a new free block there
-        else {
-          int old_free_block_size = current->size;
-          free_block_t new_free_block = (free_block_t)((uintptr_t)current + real_size);
-          new_free_block->size = old_free_block_size - real_size;
-          // And link it, as usual
-          new_free_block->next = current->next;
-          previous->next = new_free_block;
-        }
-      }
-
-      // Create a new busy block
-      busy_block_t new_busy_block = (busy_block_t)current;
-      new_busy_block->size = size;
-
-      char *allocated_memory = (char *)((uintptr_t)current + sizeof(busy_block_s));
-      print_alloc_info(allocated_memory, size);
-                   
-      return allocated_memory;      
-    }
 
     }
 
     previous = current;
 	}
 
-
   return NULL;
+}
+
+char *allocate_block(int size, int real_size, free_block_t previous, free_block_t current) {
+  // Make sure that when we allocate something in a free block, the remaining empty space can hold at least another free block
+  if (current->size - real_size < sizeof(free_block_s)) {
+    // Use all the block
+    size = current->size - sizeof(busy_block_s);
+    real_size = size + sizeof(busy_block_s);
+  }
+
+  // It was the first free block
+  if (current == first_free) {
+    // If there's another free block after
+    if (first_free->next != NULL) {
+      // If there's enough space for a new free block, create it
+      if (first_free->size - real_size >= sizeof(free_block_s)) {
+        int old_first_free_size = first_free->size;
+        free_block_t old_next = first_free->next;
+
+        first_free = (free_block_t)((uintptr_t)first_free + real_size);
+        first_free->size = old_first_free_size - real_size; 
+        first_free->next = old_next;
+      }
+      else {
+        // otherwise, just make it the first free
+        first_free = first_free->next;
+      }
+    } else {
+      // Check if there's enough space to move first_free                              
+      if (((uintptr_t)first_free + real_size) >= ((uintptr_t)memory + MEMORY_SIZE)) {     // check out buddy allocation
+        first_free = NULL;
+      } else {
+        // Enough space, just move first_free 
+        int old_first_free_size = first_free->size;
+        first_free = (free_block_t)((uintptr_t)first_free + real_size);
+
+        first_free->size = old_first_free_size - real_size; 
+        first_free->next = NULL;
+      }
+    }
+  }
+  // Somewhere else
+  else {
+    // If we're using the whole block
+    if (size == current->size - sizeof(busy_block_s)) {
+      // Two scenarios here. If there's another free block after, link the previous to that one, if not, set next to NULL
+      if (current->next != NULL) {
+        previous->next = current->next;
+      } else {
+        // We ran out of space!
+        previous->next = NULL;
+      }
+    } 
+    // There's empty space. Create a new free block there
+    else {
+      int old_free_block_size = current->size;
+      free_block_t new_free_block = (free_block_t)((uintptr_t)current + real_size);
+      new_free_block->size = old_free_block_size - real_size;
+      // And link it, as usual
+      new_free_block->next = current->next;
+      previous->next = new_free_block;
+    }
+  }
+
+  // Create a new busy block
+  busy_block_t new_busy_block = (busy_block_t)current;
+  new_busy_block->size = size;
+
+  char *allocated_memory = (char *)((uintptr_t)current + sizeof(busy_block_s));
+  print_alloc_info(allocated_memory, size);
+               
+  return allocated_memory;
 }
 
 /*
