@@ -8,7 +8,8 @@
 #define MINIMUM_SIZE 12
 
 /* memory */
-char memory[MEMORY_SIZE]; 
+char memory[MEMORY_SIZE];
+int allocated_blocks;
 
 /* 
 Structure declaration for free blocks
@@ -35,6 +36,17 @@ free_block_t first_free;
 #define ULONG(x)((long unsigned int)(x))
 #define max(x,y) (x>y?x:y)
 
+// 1: p is a free block
+// 0: p is not a free block
+int is_free_block(char *p) {
+  free_block_t current;
+  for (current = first_free; current != NULL; current = current->next) {
+    if ((uintptr_t)p == (uintptr_t)current) {
+      return 1;
+    }
+  }
+  return 0;
+}
 
 /*
 Initialize the list of free blocks with a single free block corresponding to the full array.
@@ -142,6 +154,9 @@ char *memory_alloc(int size) {
       char *allocated_memory = (char *)((uintptr_t)current + sizeof(busy_block_s));
       print_alloc_info(allocated_memory, size);
 			             
+      // at this point the memory was allocated
+      allocated_blocks++;
+
       return allocated_memory;	    
 		}
 
@@ -149,6 +164,34 @@ char *memory_alloc(int size) {
 	}
 
   return NULL;
+}
+
+// P: the block
+// Current: the next block
+int is_in_busy_block(char *p, char *current) {
+  if ((uintptr_t)current >= ((uintptr_t)memory + MEMORY_SIZE)) {
+    // Out of memory
+    return 0;
+  } else {    
+    // In the beginning, current is the address of memory
+    if (is_free_block(current)) {
+      free_block_t free_block = (free_block_t)((uintptr_t)current);  
+      is_in_busy_block(p, (char *)((uintptr_t)free_block + free_block->size + sizeof(free_block_s)));    
+    } else {      
+      // Check if it's inside a busy block 
+      busy_block_t busy_block = (busy_block_t)((uintptr_t)current);      
+
+      if (((uintptr_t)p > (uintptr_t)busy_block) &&
+        ((uintptr_t)p < (uintptr_t)busy_block + busy_block->size + sizeof(busy_block_s)) &&
+        ((uintptr_t)p != (uintptr_t)busy_block + sizeof(busy_block_s))) {
+        // Got it!, within an occupied block
+        return 1;
+      } else {
+        is_in_busy_block(p, (char *)((uintptr_t)busy_block + busy_block->size + sizeof(busy_block_s)));
+      }      
+  }
+  return 0;
+  }
 }
 
 /*
@@ -163,21 +206,43 @@ void memory_free(char *p) {
   // free a currently unallocated memory zone
   // free a fraction of an allocated zone
 
-  // Check it's not within a free block
+  // Check it's not within a free block or a free block
   for (current = first_free; current != NULL; current = current->next) {
     uintptr_t location = (uintptr_t)p - sizeof(busy_block_s);
-    if (location >= (uintptr_t)current && location < ((uintptr_t)current + current->size)) {
+    if ((location >= (uintptr_t)current && location < ((uintptr_t)current + current->size)) || (uintptr_t)p == (uintptr_t)current) {
       return;
     }
+  }
+
+  // Safety check -- fraction of an allocated zone
+  // Check that p is not within an allocated block. It can only be the end address of the busy block's location 
+  // (since the user doesn't know where the header is located)
+  if (is_in_busy_block(p, memory)) {
+    return;
+  }
+
+  // Safety check - Corrupting the allocator metadata
+  // Block out of bounds (after or before memory's bounds)
+  if (((uintptr_t)p > (uintptr_t)memory + MEMORY_SIZE) ||
+      (uintptr_t)p < (uintptr_t)memory) {
+      exit(1);
   }
 
   // Find the busy block header  
   busy_block_t occupied_block = (busy_block_t)((uintptr_t)p - sizeof(busy_block_s));
   int old_occupied_size = occupied_block->size;
 
+  // Occupied block too big
+  if (occupied_block->size + sizeof(busy_block_s) > MEMORY_SIZE) {
+      exit(1);
+  }
+
   // Make it a free block
   free_block_t free_block = (free_block_t)((uintptr_t)occupied_block);
   free_block->size = (old_occupied_size + sizeof(busy_block_s));
+
+  // Decrease the allocated blocks count
+  allocated_blocks--;
 
   // If we ran out of free blocks
   if (first_free == NULL) {
@@ -230,6 +295,12 @@ void memory_free(char *p) {
     }
   }
   while (merged_blocks);
+}
+
+void print_unallocated_blocks() {
+  if (allocated_blocks > 0) {
+    fprintf(stderr, "Warning, %d blocks have not been deallocated\n", allocated_blocks); 
+  }
 }
 
 void print_info(void) {
@@ -298,78 +369,19 @@ void *realloc(void *ptr, size_t size){
   return (void*)(new); 
 }
 
-
 #ifdef MAIN
-int main(int argc, char **argv){
+int main(int argc, char **argv) {
 
   /* The main can be changed, it is *not* involved in tests */
   memory_init();
 
   /*
-  memory_alloc(20);
-  memory_alloc(20);
-  char *c = memory_alloc(20);
-  memory_free(c);
-  memory_free((char *)((uintptr_t)c + 100));
-  //memory_free((char *)((uintptr_t)b * 2));
-
+  char *a = malloc(20);
+  memory_free((char *)((uintptr_t)a + 1));
   print_free_blocks();
+  //memory_free((char *)memory);
   */
 
-  /*
-  memory_alloc(20);
-  char *b = memory_alloc(20);
-  char *d = memory_alloc(10);
-  char *c = memory_alloc(15);
-  memory_alloc(20);
-
-  memory_free(b);
-  print_free_blocks();
-  memory_free(c);
-  print_free_blocks();
-  memory_free(d);    
-  print_free_blocks();
-  */
-
-  /*
-  char *b = memory_alloc(30);
-  printf("malloc returned: %lu\n", (uintptr_t)b);
-  printf("first_free: %lu\n", (uintptr_t)first_free);
-  if (b != NULL) {
-    memory_free(b);
-    printf("first_free after free: %lu\n", (uintptr_t)first_free);
-    printf("first_free->size after free: %d\n", first_free->size);
-
-    printf("second free: %lu\n", (uintptr_t)first_free->next);
-    printf("second free size: %d\n", first_free->next->size); // TODO wrong size
-  }
-  
-  printf("\n\n\n");
-
-  int i ; 
-  for (i = 0; i < 2; i++) {
-    char *c = memory_alloc(rand()%8);
-    printf("malloc b: %lu\n", (uintptr_t)c);
-    printf("first_free: %lu\n", (uintptr_t)first_free);
-    memory_free(c); 
-    printf("first_free after free: %lu\n", (uintptr_t)first_free);
-    // print_free_blocks();
-  } 
-  */
-
-
-
-  /*
-  char * a = memory_alloc(15);
-  a=realloc(a, 20); 
-  memory_free(a);
-
-
-  a = memory_alloc(10);
-  memory_free(a);
-
-  printf("%lu\n",(long unsigned int) (memory_alloc(9)));
-  */
   return EXIT_SUCCESS;
 }
 #endif 
