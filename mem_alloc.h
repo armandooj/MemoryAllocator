@@ -12,7 +12,7 @@ void print_info(void);
 void print_alloc_info(char *addr, int size); 
 void print_free_info(char *addr); 
 void print_free_blocks(void); 
-void print_unallocated_blocks();
+void print_unallocated_blocks(void);
 char *heap_base(void); 
 
 #include <stdlib.h>

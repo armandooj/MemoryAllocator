@@ -297,7 +297,7 @@ void memory_free(char *p) {
   while (merged_blocks);
 }
 
-void print_unallocated_blocks() {
+void print_unallocated_blocks(void) {
   if (allocated_blocks > 0) {
     fprintf(stderr, "Warning, %d blocks have not been deallocated\n", allocated_blocks); 
   }
