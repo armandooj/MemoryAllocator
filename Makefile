@@ -18,14 +18,16 @@ BIN_FILES = $(patsubst %.c,%,$(C_FILES))
 O_FILES = $(patsubst %.c,%.o,$(C_FILES))
 
 mem_alloc_test:mem_alloc.c
-	$(CC) -DMAIN -DMEMORY_SIZE=512 $(CFLAGS) $(LDFLAGS) $< -o $@
+# ALGORITHM: 0 - First fit, 1 - Best fit, 2 - Worst fit
+	$(CC) -DMAIN -DMEMORY_SIZE=512 -DALGORITHM=0 $(CFLAGS) $(LDFLAGS) $< -o $@
 
 mem_shell:mem_shell.c mem_alloc.c
-	$(CC) -DMEMORY_SIZE=512 $(CFLAGS) $(LDFLAGS) $^ -o $@
+# ALGORITHM: 0 - First fit, 1 - Best fit, 2 - Worst fit
+	$(CC) -DMEMORY_SIZE=512 -DALGORITHM=0 $(CFLAGS) $(LDFLAGS) $^ -o $@
 
 libmalloc.o:mem_alloc.c
-#	$(CC) -DMEMORY_SIZE=8388608 $(CFLAGS) -fPIC -c $< -o $@
-	$(CC) -DMEMORY_SIZE=65536 $(CFLAGS) -fPIC -c $< -o $@
+# ALGORITHM: 0 - First fit, 1 - Best fit, 2 - Worst fit
+	$(CC) -DMEMORY_SIZE=65536 -DALGORITHM=0 $(CFLAGS) -fPIC -c $< -o $@
 
 libmalloc.so:libmalloc.o
 	$(CC) -shared -Wl,-soname,$@ $< -o $@

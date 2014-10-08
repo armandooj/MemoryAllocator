@@ -7,10 +7,6 @@
 #define ALIGNMENT_CONSTANT 4
 #define MINIMUM_SIZE 12
 
-#define FIRST 1
-#define BEST 0
-#define WORST 0
-
 /* memory */
 char memory[MEMORY_SIZE]; 
 
@@ -33,6 +29,12 @@ typedef struct{
 
 /* Pointer to the first free block in the memory */
 free_block_t first_free; 
+
+enum {
+  FIRST_FIT,
+  BEST_FIT,
+  WORST_FIT
+};
 
 #define ULONG(x)((long unsigned int)(x))
 #define max(x,y) (x>y?x:y)
@@ -70,7 +72,7 @@ char *memory_alloc(int size) {
   // the size needed for both memory and header
   int real_size = size + sizeof(busy_block_s);
 
-  if (BEST) {
+  if (ALGORITHM == BEST_FIT) {
     candidate_size = MEMORY_SIZE;
     for (current = first_free; current != NULL; current = current->next) {
       if ((current->size >= real_size) && (current->size <= candidate_size)) {
@@ -80,7 +82,7 @@ char *memory_alloc(int size) {
     }
   }
 
-  if (WORST) {
+  if (ALGORITHM == WORST_FIT) {
     candidate_size = 1;
     for (current = first_free; current != NULL; current = current->next) {
       if((current->size >= real_size) && (current->size >= candidate_size)){
@@ -93,7 +95,7 @@ char *memory_alloc(int size) {
   for (current = first_free; current != NULL; current = current->next) {
     // We found an empty block with enough space
     // First fit criteria
-    if (FIRST) {
+    if (ALGORITHM == FIRST_FIT) {
   		if (current->size >= real_size) {
         return allocate_block(size, real_size, previous, current);    
   		}
