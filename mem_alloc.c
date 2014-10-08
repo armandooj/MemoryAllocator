@@ -40,6 +40,14 @@ enum {
 #define ULONG(x)((long unsigned int)(x))
 #define max(x,y) (x>y?x:y)
 
+free_block_t get_last_free_block_addr(void){  
+  free_block_t current,last;
+    for (current = first_free; current != NULL; current = current->next) {
+      last=current;
+    }
+    return last;
+}
+
 char *allocate_block(int size, int real_size, free_block_t previous, free_block_t current);
 
 /*
@@ -109,6 +117,7 @@ char *memory_alloc(int size) {
 }
 
 char *allocate_block(int size, int real_size, free_block_t previous, free_block_t current) {
+
   // Make sure that when we allocate something in a free block, the remaining empty space can hold at least another free block
   if (current->size - real_size < sizeof(free_block_s)) {
     // Use all the block
@@ -177,6 +186,8 @@ char *allocate_block(int size, int real_size, free_block_t previous, free_block_
   char *allocated_memory = (char *)((uintptr_t)current + sizeof(busy_block_s));
   print_alloc_info(allocated_memory, size);
                
+  real_mem_used=real_mem_used+real_size;
+  printf("%d\t%lu %d\t\t\n",real_mem_used,(uintptr_t)get_last_free_block_addr()-(uintptr_t)memory+sizeof(free_block_s),ALGORITHM );
   return allocated_memory;
 }
 
@@ -196,6 +207,7 @@ void memory_free(char *p) {
   free_block_t free_block = (free_block_t)((uintptr_t)occupied_block);
   free_block->size = (old_occupied_size + sizeof(busy_block_s));
 
+  real_mem_used=real_mem_used- occupied_block->size+sizeof(busy_block_s);
   // If we ran out of free blocks
   if (first_free == NULL) {
     first_free = free_block;
@@ -285,31 +297,15 @@ char *heap_base(void) {
   return memory;
 }
 
-void log_internal_fragmentation(void) {
-  free_block_t current;
-  for (current = first_free; current != NULL; current = current->next) {}
-  fprintf(stdout, "+++++++%lu\n ", (uintptr_t)current - (uintptr_t)memory);
-}
-
-void log_external_fragmentation(void) {
-  int allocator_used_memory = MEMORY_SIZE;
-  free_block_t current;
-  for (current = first_free; current != NULL; current = current->next) {
-    allocator_used_memory = allocator_used_memory - current->size + sizeof(free_block_s);
-  }
-  fprintf(stdout,"--------%u\n ", allocator_used_memory);
-}
 
 void *malloc(size_t size){
   static int init_flag = 0;
   if(!init_flag){
     init_flag = 1; 
     memory_init(); 
-    //print_info(); 
+   // print_info(); 
   }      
 
-  log_internal_fragmentation();
-  log_external_fragmentation();
 
   return (void*)memory_alloc((size_t)size); 
 }

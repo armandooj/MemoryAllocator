@@ -30,14 +30,14 @@ libmalloc.o:mem_alloc.c
 	$(CC) -DMEMORY_SIZE=65536 -DALGORITHM=0 $(CFLAGS) -fPIC -c $< -o $@
 
 libmalloc.so:libmalloc.o
-	$(CC) -shared -Wl,-soname,$@ $< -o $@
+	$(CC) -DALGORITHM=1 -shared -Wl,-soname,$@ $< -o $@
 
 test_ls:libmalloc.so
 	LD_PRELOAD=./libmalloc.so ls
 	LD_PRELOAD=""
 
-test_time:libmalloc.so
-	LD_PRELOAD=./libmalloc.so time
+test_ls1:libmalloc.so
+	LD_PRELOAD=./libmalloc.so  -DALGORITHM=0 ls
 	LD_PRELOAD=""
 
 leak_test: leak_test.c libmalloc.o
