@@ -36,6 +36,10 @@ test_ls:libmalloc.so
 	LD_PRELOAD=./libmalloc.so ls
 	LD_PRELOAD=""
 
+test_time:libmalloc.so
+	LD_PRELOAD=./libmalloc.so time
+	LD_PRELOAD=""
+
 leak_test: leak_test.c libmalloc.o
 	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@
 

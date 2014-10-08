@@ -49,7 +49,7 @@
 \definecolor{mauve}{rgb}{0.58,0,0.82}
 
 \lstset{frame=tb,
-  language=Java,
+  language=C,
   aboveskip=1mm,
   belowskip=0mm,
   showstringspaces=false,
@@ -101,14 +101,92 @@ The above black block of size 16k is going to be allocated. Now the question is 
 \caption{First best and worst fit}
 \end{figure}
   \item[First fit] \hfill \\
-	We choose the 22k block. This block represents simply the first candidate discovered.
+  We choose the 22k block. This block represents simply the first candidate discovered.
   \item[Best fit] \hfill \\
-  	We choose the 16k block. This block represents the candidate whose size is closer to the one of we are going to allocate. In this case is exactly the same!
+    We choose the 16k block. This block represents the candidate whose size is closer to the one of we are going to allocate. In this case is exactly the same!
   \item[Worst fit] \hfill \\
-	We choose the 48k block. This block is the candidate who has the bigger available size.
+  We choose the 48k block. This block is the candidate who has the bigger available size.
 \end{description}
 
-\textbf{First fit}\\
+We will propose now our solitions to perform each criteria. We jave to main parts in the code of malloc: the first in wich we choose the criteria, the second in wich we perform the allocation using it. By now we will call \textit{candiate free block} the free block that better satisfies the choosen critera.\\
+\\
+When \textbf{memory$\_$alloc}(int size) is called we perform this evaluation of the candidate then we call the function \textbf{allocate$\_$block}(size, real$\_$size, previous, current) that finally allocate it on the candidate\\
+\\
+Here we have the selection of the candidate:
+\begin{lstlisting}
+char *allocate_block(int size, int real_size, free_block_t previous, free_block_t current) {
+  // Make sure that when we allocate something in a free block, the remaining empty space can hold at least another free block
+  if (current->size - real_size < sizeof(free_block_s)) {
+    // Use all the block
+    size = current->size - sizeof(busy_block_s);
+    real_size = size + sizeof(busy_block_s);
+  }
+
+  // It was the first free block
+  if (current == first_free) {
+    // If there's another free block after
+    if (first_free->next != NULL) {
+      // If there's enough space for a new free block, create it
+      if (first_free->size - real_size >= sizeof(free_block_s)) {
+        int old_first_free_size = first_free->size;
+        free_block_t old_next = first_free->next;
+
+        first_free = (free_block_t)((uintptr_t)first_free + real_size);
+        first_free->size = old_first_free_size - real_size; 
+        first_free->next = old_next;
+      }
+      else {
+        // otherwise, just make it the first free
+        first_free = first_free->next;
+      }
+    } else {
+      // Check if there's enough space to move first_free                              
+      if (((uintptr_t)first_free + real_size) >= ((uintptr_t)memory + MEMORY_SIZE)) {     // check out buddy allocation
+        first_free = NULL;
+      } else {
+        // Enough space, just move first_free 
+        int old_first_free_size = first_free->size;
+        first_free = (free_block_t)((uintptr_t)first_free + real_size);
+
+        first_free->size = old_first_free_size - real_size; 
+        first_free->next = NULL;
+      }
+    }
+  }
+  // Somewhere else
+  else {
+    // If we're using the whole block
+    if (size == current->size - sizeof(busy_block_s)) {
+      // Two scenarios here. If there's another free block after, link the previous to that one, if not, set next to NULL
+      if (current->next != NULL) {
+        previous->next = current->next;
+      } else {
+        // We ran out of space!
+        previous->next = NULL;
+      }
+    } 
+    // There's empty space. Create a new free block there
+    else {
+      int old_free_block_size = current->size;
+      free_block_t new_free_block = (free_block_t)((uintptr_t)current + real_size);
+      new_free_block->size = old_free_block_size - real_size;
+      // And link it, as usual
+      new_free_block->next = current->next;
+      previous->next = new_free_block;
+    }
+  }
+
+  // Create a new busy block
+  busy_block_t new_busy_block = (busy_block_t)current;
+  new_busy_block->size = size;
+
+  char *allocated_memory = (char *)((uintptr_t)current + sizeof(busy_block_s));
+  print_alloc_info(allocated_memory, size);
+               
+  return allocated_memory;
+}
+\end{lstlisting}
+
 \subsection{Questions}
 
 \subsubsection*{Do you have to keep a list for occupied blocks ? If no, explain why, if yes, provide a C definition of the structure.
@@ -116,10 +194,10 @@ No, it's not necessary, Why?}
 We don't keep a list for occupied bloks. Initially we thought at how to handle the problem of exploring free and busy block, and we figured out that we would need at least the free block list. The busy block one is straight forward of the free block list: let's say we want to iterate the busy block list, if the first free is not the first memory address that means that is a busy block. So we can read the first busy header and sum its size to go to the next block. If that address is not in the freeblock list, that means that is a busy block...so we continue again exploring.
 
 \subsubsection*{As a user, can you use addresses 0,1,2 ? Generally speaking, can a user manipulate any address?}
-No. When allocating memory for the user, only the payload's address is returned because he's not allowed to modify  the free$\_$block header, since that would corrupt the whole list of free blocks, and possibly lead to losing information.
+No. When allocating memory for the user, only the payload's address is returned because he's not allowed to modify  the free$\_$block header, since that would corrupt the whole list of free blocks, and possibly lead to losing informations. We added some safety checks about that topics in the code. For more information the reader can go to the relative chapter below
 
 \subsubsection*{When a block is freed by the user, which address is used? What should be done in order to reintegrate the zone in the list of free blocks?}
-The address where the payload starts. There is no reason for the user to know the initial address of the busy block, so it's the memory free function's responsability to find it. 
+The address where the payload starts. There is no reason for the user to know the initial address of the busy block, so it's the memory free function's responsibility to find it. 
 In order to reintegrate the zone to the list of free blocks, we need to find the closest free block before the new free zone and make it the closest block's next. We also need to make sure that to set it's next as the next the closest free block had before. In short words, link the zone inside the free block's list in it's corresponding position.
 
 \subsubsection*{When a block is allocated inside a free memory zone, one must take care of how the memory is partitioned. In the most simple case, we allocate the beginning of the block for our needs, and the rest of it becomes a new free block. However, it is possible that the rest is too small. How is this possible ? How could you deal with this case?}
@@ -131,24 +209,5 @@ To implement a memory allocator means define how \textbf{initialize}, \textbf{al
  
 \section{Experiment}
 \section{Conclusion}
+In this lab we had the possibility to learn about very interesting topics representing the base of the behaviour of an operating system. The memory allocation is a crucial argument and before starting this lab we did't figured out all the possible scenarios that could occur when a simple operation of allocation is requested. We would say that in general the provided C skeleton was enlightening we've learned so much just looking at the makefile that create all the test and the library to "forward" the system call to malloc to our implementation of that one. The evaluation stage was more difficult because for us was not clear wich criteria we had to choose to better evaluate the fragmentation...anyway we understood that there is not a "right" criteria, and that we had just to choose one of that and justify the obtained result. Anyway that result have to be coeherent notwithstanding the criteria we've decided to choose.
 \end{document}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

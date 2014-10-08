@@ -8,7 +8,8 @@
 #define MINIMUM_SIZE 12
 
 /* memory */
-char memory[MEMORY_SIZE]; 
+char memory[MEMORY_SIZE];
+int real_mem_used;
 
 /* 
 Structure declaration for free blocks
@@ -48,6 +49,7 @@ void memory_init(void) {
 	first_free = (free_block_t)((uintptr_t)memory);
 	first_free->size = MEMORY_SIZE;
 	first_free->next = NULL;
+  real_mem_used=0;
 }
 
 /*
@@ -60,14 +62,6 @@ char *memory_alloc(int size) {
   if (size < MINIMUM_SIZE) {
     size = MINIMUM_SIZE;
   }
-
-  /*
-  // Memory alignment
-  int reminder = size % ALIGNMENT_CONSTANT;
-  if (reminder != 0) {    
-    size = size + reminder;
-  } 
-  */
 
   // the size needed for both memory and header
   int real_size = size + sizeof(busy_block_s);
@@ -294,7 +288,7 @@ char *heap_base(void) {
 void log_internal_fragmentation(void) {
   free_block_t current;
   for (current = first_free; current != NULL; current = current->next) {}
-  fprintf(stdout, "%lu ", (uintptr_t)current - (uintptr_t)memory);
+  fprintf(stdout, "+++++++%lu\n ", (uintptr_t)current - (uintptr_t)memory);
 }
 
 void log_external_fragmentation(void) {
@@ -303,7 +297,7 @@ void log_external_fragmentation(void) {
   for (current = first_free; current != NULL; current = current->next) {
     allocator_used_memory = allocator_used_memory - current->size + sizeof(free_block_s);
   }
-  fprintf(stdout,"%u ", allocator_used_memory);
+  fprintf(stdout,"--------%u\n ", allocator_used_memory);
 }
 
 void *malloc(size_t size){
