@@ -1,0 +1,4 @@
+ALLOC at : 4 (20 byte(s))
+ALLOC at : 28 (30 byte(s))
+Warning, 2 blocks have not been deallocated
+Warning, the dynamic allocated memory has not been completely freed

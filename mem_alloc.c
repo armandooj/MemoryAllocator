@@ -36,6 +36,8 @@ free_block_t first_free;
 #define ULONG(x)((long unsigned int)(x))
 #define max(x,y) (x>y?x:y)
 
+void check_integrity_free_block(free_block_t free_block);
+
 // 1: p is a free block
 // 0: p is not a free block
 int is_free_block(char *p) {
@@ -67,14 +69,6 @@ char *memory_alloc(int size) {
     size = MINIMUM_SIZE;
   }
 
-  /*
-  // Memory alignment
-  int reminder = size % ALIGNMENT_CONSTANT;
-  if (reminder != 0) {    
-    size = size + reminder;
-  } 
-  */
-
   // the size needed for both memory and header
 	int real_size = size + sizeof(busy_block_s); 
 
@@ -82,6 +76,8 @@ char *memory_alloc(int size) {
     // We found an empty block with enough space
     // First fit criteria
 		if (current->size >= real_size) {
+
+      check_integrity_free_block(current);
 
       // Make sure that when we allocate something in a free block, the remaining empty space can hold at least another free block
       if (current->size - real_size < sizeof(free_block_s)) {
@@ -206,7 +202,7 @@ void memory_free(char *p) {
   // free a currently unallocated memory zone
   // free a fraction of an allocated zone
 
-  // Check it's not within a free block or a free block
+  // Check it's not within a free block or it's already free block
   for (current = first_free; current != NULL; current = current->next) {
     uintptr_t location = (uintptr_t)p - sizeof(busy_block_s);
     if ((location >= (uintptr_t)current && location < ((uintptr_t)current + current->size)) || (uintptr_t)p == (uintptr_t)current) {
@@ -297,9 +293,31 @@ void memory_free(char *p) {
   while (merged_blocks);
 }
 
+void check_integrity_free_block(free_block_t free_block) {
+  // Range of the free block
+  if ((uintptr_t)free_block > (uintptr_t)memory + MEMORY_SIZE) {
+    fprintf(stderr, "Warning, memory corrupted\n");
+    exit(1);
+  }
+
+  // Range of the free block's size
+  if (free_block->size + (uintptr_t)free_block - (uintptr_t)memory > MEMORY_SIZE) {
+    fprintf(stderr, "Warning, memory corrupted\n");
+    exit(1);
+  }
+}
+
 void print_unallocated_blocks(void) {
+  // Approach one
   if (allocated_blocks > 0) {
     fprintf(stderr, "Warning, %d blocks have not been deallocated\n", allocated_blocks); 
+  }
+
+  // Approach two
+  if (first_free->size != MEMORY_SIZE ||
+      first_free->next != NULL ||
+      (uintptr_t)first_free != (uintptr_t)memory) {
+        fprintf(stderr, "Warning, the dynamic allocated memory has not been completely freed\n"); 
   }
 }
 
